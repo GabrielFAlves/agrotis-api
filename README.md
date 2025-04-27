@@ -106,6 +106,7 @@ Foram implementados testes de unidade para:
 
 - `PessoaUseCase`
 - `PessoaValidationService`
+- `LaboratorioService`
 
 ### Executar os testes:
 
