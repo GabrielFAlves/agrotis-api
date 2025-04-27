@@ -8,6 +8,8 @@ import com.agrotis.api.application.service.PessoaValidationService;
 import com.agrotis.api.domain.model.Laboratorio;
 import com.agrotis.api.domain.model.Pessoa;
 import com.agrotis.api.domain.model.Propriedade;
+import com.agrotis.api.domain.repository.LaboratorioRepository;
+import com.agrotis.api.domain.repository.PropriedadeRepository;
 import com.agrotis.api.domain.usecase.PessoaUseCase;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.Valid;
@@ -27,6 +29,8 @@ public class PessoaController {
 
     private final PessoaUseCase pessoaUseCase;
     private final PessoaValidationService pessoaValidationService;
+    private final PropriedadeRepository propriedadeRepository;
+    private final LaboratorioRepository laboratorioRepository;
 
     @PostMapping
     public ResponseEntity<?> criarPessoa(@Valid @RequestBody PessoaRequestDTO request) {
@@ -79,13 +83,19 @@ public class PessoaController {
     }
 
     private Pessoa mapToDomain(PessoaRequestDTO request) {
+        Propriedade propriedade = propriedadeRepository.findById(request.getPropriedadeId())
+                .orElseThrow(() -> new IllegalArgumentException("Propriedade não encontrada com ID: " + request.getPropriedadeId()));
+
+        Laboratorio laboratorio = laboratorioRepository.findById(request.getLaboratorioId())
+                .orElseThrow(() -> new IllegalArgumentException("Laboratório não encontrado com ID: " + request.getLaboratorioId()));
+
         return Pessoa.builder()
                 .nome(request.getNome())
                 .dataInicial(request.getDataInicial())
                 .dataFinal(request.getDataFinal())
                 .observacoes(request.getObservacoes())
-                .propriedade(Propriedade.builder().id(request.getPropriedadeId()).build())
-                .laboratorio(Laboratorio.builder().id(request.getLaboratorioId()).build())
+                .propriedade(propriedade)
+                .laboratorio(laboratorio)
                 .build();
     }
 
